@@ -456,7 +456,7 @@ static int process_login(int p, char *loginname)
 	char loginnameii[80];
 	int is_guest = 0;
 
-	loginname = eatwhite(loginname);
+	loginname = eattailwhite(eatwhite(loginname));
 
 	if (!*loginname) {
 		goto new_login;
@@ -472,6 +472,10 @@ static int process_login(int p, char *loginname)
 	strlcpy(loginnameii, loginname, sizeof(loginnameii));
 
 	if (!alphastring(loginnameii)) {
+		if(loginnameii[0] == 37) {
+			pprintf(p, "#Ivars set.\n" );
+		    goto new_login_noprompt;
+		}
 		pprintf(p, "\nSorry, names can only consist of lower and upper case letters.  Try again.\n");
 		goto new_login;
 	} 
@@ -556,6 +560,7 @@ new_login:
 	/* give them a new prompt */
 	psend_raw_file(p, MESS_DIR, MESS_LOGIN);
 	pprintf(p, "login: ");
+new_login_noprompt:
 	return COM_OK;
 }
 
@@ -629,6 +634,7 @@ static int process_password(int p, char *password)
   if (pp->adminLevel > 0) {
     psend_raw_file(p, MESS_DIR, MESS_ADMOTD);
   } else {
+    pprintf(p, "\n**** Starting FICS session as %s ****\n", pp->name);
     psend_raw_file(p, MESS_DIR, MESS_MOTD);
   }
   if (MAX_ADVERTS >=0) {
