@@ -449,6 +449,67 @@ static int process_command(int p, char *com_string, char **cmd)
 
 	return COM_OK;
 }
+static int parse_login_ivars(int p, char *ivstr )
+{
+	struct player *pp = &player_globals.parray[p];
+	struct ivariables *iv;
+	iv = &pp->ivariables;
+	int i;
+
+	pprintf(p, "DEBUG: parsing Ivars\n");
+
+	if( ivstr[0] != '%' ) {
+		pprintf(p, "Ivars string does not begin with percent\n");
+		return -1;
+	}
+	if( ivstr[1] != 'b' ) {
+		pprintf(p, "Ivars string 2nd char is not b\n");
+        return -1;
+	}
+
+	for(i=2;i<35;i++) {
+		if(ivstr[i] != '0' && ivstr[i] != '1') {
+			pprintf(p, "Ivars string %s formatted incorrectly on char %d", ivstr, i);
+			return -1;
+		}
+	}
+	iv->compressmove = ( ivstr[2] == '1' ) ? 1:0;
+	iv->audiochat    = ( ivstr[3] == '1' ) ? 1:0;
+	iv->seekremove   = ( ivstr[4] == '1' ) ? 1:0;
+	iv->defprompt    = ( ivstr[5] == '1' ) ? 1:0;
+	iv->lock         = ( ivstr[6] == '1' ) ? 1:0;
+	iv->startpos     = ( ivstr[7] == '1' ) ? 1:0;
+	// not sure what 8 is
+	iv->gameinfo     = ( ivstr[9] == '1' ) ? 1:0;
+	iv->xml          = ( ivstr[10] == '1' ) ? 1:0;
+	iv->pendinfo     = ( ivstr[11] == '1' ) ? 1:0;
+	iv->graph        = ( ivstr[12] == '1' ) ? 1:0;
+	iv->seekinfo     = ( ivstr[13] == '1' ) ? 1:0;
+	iv->extascii     = ( ivstr[14] == '1' ) ? 1:0;
+	iv->nohighlight  = ( ivstr[15] == '1' ) ? 1:0;
+	iv->vthighlight  = ( ivstr[16] == '1' ) ? 1:0;
+	iv->showserver   = ( ivstr[17] == '1' ) ? 1:0;
+	iv->pin          = ( ivstr[18] == '1' ) ? 1:0;
+	iv->ms           = ( ivstr[19] == '1' ) ? 1:0;
+	iv->pinginfo     = ( ivstr[20] == '1' ) ? 1:0;
+	iv->boardinfo    = ( ivstr[21] == '1' ) ? 1:0;
+	iv->extuserinfo  = ( ivstr[22] == '1' ) ? 1:0;
+	iv->seekca       = ( ivstr[23] == '1' ) ? 1:0;
+	iv->showownseek  = ( ivstr[24] == '1' ) ? 1:0;
+	iv->premove      = ( ivstr[25] == '1' ) ? 1:0;
+	iv->smartmove    = ( ivstr[26] == '1' ) ? 1:0;
+	iv->movecase     = ( ivstr[27] == '1' ) ? 1:0;
+	iv->suicide      = ( ivstr[28] == '1' ) ? 1:0;
+	iv->crazyhouse   = ( ivstr[29] == '1' ) ? 1:0;
+	iv->losers       = ( ivstr[30] == '1' ) ? 1:0;
+	iv->wildcastle   = ( ivstr[31] == '1' ) ? 1:0;
+	iv->fr           = ( ivstr[32] == '1' ) ? 1:0;
+	iv->nowrap       = ( ivstr[33] == '1' ) ? 1:0;
+	iv->allresults   = ( ivstr[34] == '1' ) ? 1:0;
+	// do not know what 35 and 36 are.
+	return 0;
+
+}
 
 static int process_login(int p, char *loginname)
 {
@@ -473,6 +534,10 @@ static int process_login(int p, char *loginname)
 
 	if (!alphastring(loginnameii)) {
 		if(loginnameii[0] == 37) {
+			if(parse_login_ivars(p, loginname) ) {
+				pprintf(p, "Parsing ivars failed, try again\n");
+				goto new_login;
+			}
 			pprintf(p, "#Ivars set.\n" );
 		    goto new_login_noprompt;
 		}
@@ -707,6 +772,11 @@ static int process_prompt(int p, char *command)
 	if(comlog) fprintf(comlog, "p%d: '%s'\n", p, command), fflush(comlog);
 
   command = eattailwhite(eatwhite(command));
+  while (command[0] == '$' ) {
+    pprintf(p, "DEBUG: command starts with dollarsign:%s\n", command);
+    command++;
+    pprintf(p, "DEBUG: chomped:%s\n", command);
+  }
   if (!*command) {
 	  send_prompt(p);
 	  return COM_OK;

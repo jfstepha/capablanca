@@ -81,6 +81,7 @@ static struct command_type command_list[] = {
   {"hrank",		"oo",	com_hrank,	ADMIN_USER },
   {"inchannel",		"n",	com_inchannel,	ADMIN_USER },
   {"iset",		"wS",	com_iset,	ADMIN_USER },
+  {"ivariables", "",	com_ivar,	ADMIN_USER },
   {"it", 		"T",	com_it,		ADMIN_USER },
   {"jkill",             "w",    com_jkill,      ADMIN_USER },
   {"journal",		"o",	com_journal,	ADMIN_USER },

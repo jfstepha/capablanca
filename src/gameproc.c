@@ -1728,12 +1728,24 @@ int com_simmatch(int p, param_list param)
   if ((param[1].type == TYPE_WORD) && (param[2].type == TYPE_WORD)) {
 
     sprintf(fname, "%s/%s/%s", BOARD_DIR, param[1].val.word , param[2].val.word);
-    if (!file_exists(fname)) {
-      pprintf(p, "No such category/board: %s/%s\n", param[1].val.word , param[2].val.word);
-      return COM_OK;
+    if (file_exists(fname)) {
+      /* some clients do not send a variation, so check for default variation */
+      sprintf(fname, "%s/%s/0", BOARD_DIR, param[1].val.word);
+      pend->category = strdup(param[1].val.word);
+      pend->board_type = strdup(param[2].val.word);
+    } else {
+      pprintf(p, "No such category/board: %s/%s, trying %s/0\n", param[1].val.word , param[2].val.word, param[1].val.word);
+      pend->category = strdup(param[1].val.word);
+      pend->board_type = NULL;
+      if( file_exists(fname)) {
+        pprintf(p, "going with %s/0\n", param[1].val.word);
+
+      } else {
+         pprintf(p, "No such category/board: %s/%s or %s/0\n", param[1].val.word , param[2].val.word, param[1].val.word);
+         return COM_OK;
+      }
+
     }
-    pend->category = strdup(param[1].val.word);
-    pend->board_type = strdup(param[2].val.word);
   } else {
     pend->category = NULL;
     pend->board_type = NULL;

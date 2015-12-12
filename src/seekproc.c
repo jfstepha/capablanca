@@ -88,8 +88,14 @@ int com_seek(int p, param_list param)
 
         sprintf(fname, "%s/%s/%s", BOARD_DIR, category, board);
         if (!file_exists(fname)) {
-          pprintf(p, "No such category/board: %s/%s\n", category, board);
-          return COM_OK;
+          pprintf(p, "No such category/board: %s/%s trying %s/0\n", category, board, category);
+          sprintf(fname, "%s/%s/0", BOARD_DIR, category);
+          if (!file_exists(fname)) {
+             pprintf(p, "No such category/board: %s/%s\n", category, board);
+             return COM_OK;
+          } else {
+        	board[0] = '\0';
+          }
         }
       }
     }
@@ -306,14 +312,28 @@ if(comlog) fprintf(comlog, "seek %d type = %d\n", i, type), fflush(comlog);
 			sprintf(buf + strlen(buf), " %s", ad->board_type);
 	} else strcpy(buf, TypeStrings[type]); // [HGM] replaced color by type here...
 
-	asprintf(&final, "%3u %4u %-17s %3u %3u %-7s %-10s\n",
+/*	asprintf(&final, "%3u %4u %-17s %3u %3u %-7s %-10s\n",
 		 i, 
 		 rating,
 		 player_globals.parray[ad->whofrom].name, 
 		 ad->wtime, 
 		 ad->winc, 
 		 ad->rated?"rated":"unrated",
-		 buf);
+		 buf); */
+	asprintf(&final, "%s (%u) %u %u %s %s %u\n",
+		 player_globals.parray[ad->whofrom].name,
+		 rating,
+		 ad->wtime,
+		 ad->winc,
+		 ad->rated?"rated":"unrated",
+		 buf,i);
 
+/*	asprint( &final "%s (%4u) seeking %u %u %s %s ( \"play %d\" to respond)\n",
+			player_globals.parray[ad->whofrom].name,
+			rating,
+			ad->wtime,
+			ad->winc,
+			ad->rated?"rated":"unrated", buf, i);
+			*/
 	return final;
 }

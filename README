@@ -4,6 +4,7 @@ My changes - Jon Stephan
 This is just for my own internal web site.  You probably don't want to use this version
 
 Make sure the MOTD has " freechess.org  ----  167.114.65.195" to let BabasChess connect
+Make sure to create the file data/stats/newratingsV2_data
 
 
 
