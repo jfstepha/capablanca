@@ -185,7 +185,8 @@ int com_seek(int p, param_list param)
     		pprintf(p1, "%s", msgtxt);
 		if( player_globals.parray[p1].ivariables.seekinfo )
     		pprintf_prompt(p1, "%s", msgtxt2);
-		count++;
+		if( CheckPFlag(p1, PFLAG_ADS) || player_globals.parray[p1].ivariables.seekinfo )
+    		count++;
 	}
 	pprintf(p, "%s", msgtxt);
 	if( player_globals.parray[p].ivariables.seekinfo )
@@ -263,11 +264,15 @@ void withdraw_seeks(int p)
 
 			for (p1 = 0; p1 < player_globals.p_num; p1++) {
 				if ((p1 == p) || (player_globals.parray[p1].status != PLAYER_PROMPT) ||
-				    (player_censored(p1, p)) || !CheckPFlag(p1,PFLAG_ADS))
+				    (player_censored(p1, p)) )
 					continue;
-				pprintf_prompt(p1, "AD_DESTROY: %d\n", i);
+					if( CheckPFlag(p1, PFLAG_ADS) )
+						pprintf_prompt(p1, "AD_DESTROY: %d\n", i);
+					if( player_globals.parray[p1].ivariables.seekinfo )
+			    		pprintf_prompt(p1, "<sr> %d\n", i);
 			}
 			pprintf(p, "Ads removed: %d\n", i);
+    		pprintf_prompt(p, "<sr> %d\n", i);
 			FREE(seek_globals.ads[i].category);
 			FREE(seek_globals.ads[i].board_type);
 		}
