@@ -33,6 +33,7 @@ enum { BLACK = 0, WHITE};
 
 static int get_empty_seekslot(void);
 static char *form_ad(struct pending * ad, int i);
+static char *form_ad_seekinfo(struct pending * ad, int i);
 
 int com_seek(int p, param_list param)
 {
@@ -40,6 +41,7 @@ int com_seek(int p, param_list param)
 	int             p1, count = 0;
 	int             num;	/* sought ID */
 	char           *msgtxt;
+	char           *msgtxt2; /* for if seekinfo is on */
 	char		board[100], category[100];
 	int		wt, bt, winc, binc, rated, white;
 
@@ -76,6 +78,11 @@ int com_seek(int p, param_list param)
 	      if (!parse_match_string(p, &wt,&bt,&winc,&binc,&white,&rated,category,
 	                                                  board,param[0].val.string))
 	      return COM_OK; /* couldn't parse */
+	      pprintf(p, "DEBUG: got category %s wt %u bt %u winc %u binc %u\n", category,wt,bt,winc,binc);
+	}
+
+	if(!strcmp("chess", category)) {
+		category[0] = 0;
 	}
 
     if (category[0]) {
@@ -103,7 +110,7 @@ int com_seek(int p, param_list param)
 	seek_globals.ads[num].status = SEEKCLOSED; // params are valid; create ad
 
 	if(wt < 0) wt = pp->d_time; if(bt < 0) bt = wt;
-	if(winc < 0) winc = pp->d_inc; if(binc < 0) binc = bt;
+	if(winc < 0) winc = pp->d_inc; if(binc < 0) binc = winc;
 	seek_globals.ads[num].wtime = wt;
 	seek_globals.ads[num].btime = bt;
 	seek_globals.ads[num].winc = winc;
@@ -166,16 +173,23 @@ int com_seek(int p, param_list param)
 	seek_globals.ads[num].next = NULL;
 
 	msgtxt = form_ad(&seek_globals.ads[num], num);
+	msgtxt2 = form_ad_seekinfo(&seek_globals.ads[num], num);
+
 
 	for (p1 = 0; p1 < player_globals.p_num; p1++) {
-		if ((p1 == p) || !CheckPFlag(p1, PFLAG_ADS)
+		if ((p1 == p)
 		  || (player_globals.parray[p1].status != PLAYER_PROMPT)
-		  || (player_censored(p1, p)))
+		  || (player_censored(p1, p)) || !player_globals.parray[p1].ivariables.seekinfo )
 			continue;
+		if( CheckPFlag(p1, PFLAG_ADS) )
+    		pprintf(p1, "%s", msgtxt);
+		if( player_globals.parray[p1].ivariables.seekinfo )
+    		pprintf_prompt(p1, "%s", msgtxt2);
 		count++;
-		pprintf(p1, "%s", msgtxt);
 	}
 	pprintf(p, "%s", msgtxt);
+	if( player_globals.parray[p].ivariables.seekinfo )
+    		pprintf_prompt(p, "%s", msgtxt2);
 	free(msgtxt);
 
 	return COM_OK;
@@ -335,5 +349,74 @@ if(comlog) fprintf(comlog, "seek %d type = %d\n", i, type), fflush(comlog);
 			ad->winc,
 			ad->rated?"rated":"unrated", buf, i);
 			*/
+	return final;
+}
+
+int seekinfo_sought(int p)
+{
+	int             i;
+	pprintf(p, "<sc>\n" );
+
+	for (i = 0; i < seek_globals.max_ads; i++) {
+		if (seek_globals.ads[i].status == SEEKCLOSED) {
+			char *msgtxt = form_ad_seekinfo(&seek_globals.ads[i], i);
+			if(comlog) fprintf(comlog, "msgtext = %s\n", msgtxt), fflush(comlog);
+			pprintf(p, "%s", msgtxt);
+			free(msgtxt);
+		}
+	}
+	return COM_OK;
+}
+
+static char *form_ad_seekinfo(struct pending * ad, int i)
+{
+
+	char           *final, buf[100];
+	char   color;
+	int             rating, total, type;
+
+	total = ad->wtime * 60 + ad->winc * 40;
+
+	if(total == 0) {
+		type = UNTIMED;
+		rating = player_globals.parray[ad->whofrom].l_stats.rating;
+        } else if (total < 180) {
+                type = LIGHTNING;
+                rating = player_globals.parray[ad->whofrom].l_stats.rating;
+        } else if (total >= 900) {
+                type = STANDARD;
+                rating = player_globals.parray[ad->whofrom].s_stats.rating;
+        } else {
+                type = BLITZ;
+                rating = player_globals.parray[ad->whofrom].b_stats.rating;
+	}
+
+
+	if(ad->category[0]) { // [HGM] print category with seek ad
+		sprintf(buf, " %s", ad->category);
+	if(ad->board_type[0] && strcmp(ad->board_type, "0"))
+			sprintf(buf + strlen(buf), " %s", ad->board_type);
+	} else strcpy(buf, TypeStrings[type]); // [HGM] replaced color by type here...
+
+	if(comlog) fprintf(comlog, "seek %d type = %d\n", i, type), fflush(comlog);
+	if( ad->seek_color == WHITE  )
+		color='W';
+	else if ( ad->seek_color==BLACK )
+		color='B';
+	else
+		color='?';
+
+	asprintf(&final, "\n<s> %u w=%s ti=00 rt=%u t=%u i=%u r=%c tp=%s c=%c rr=%s a=t f=f\n",
+			i,
+		    player_globals.parray[ad->whofrom].name,
+		    rating,
+		    ad->wtime,
+		    ad->winc,
+		    ad->rated?'r':'u',
+    		buf,
+    		color,
+			"0-9999"
+			);
+
 	return final;
 }

@@ -456,7 +456,9 @@ static int parse_login_ivars(int p, char *ivstr )
 	iv = &pp->ivariables;
 	int i;
 
+#ifdef DEBUG
 	pprintf(p, "DEBUG: parsing Ivars\n");
+#endif
 
 	if( ivstr[0] != '%' ) {
 		pprintf(p, "Ivars string does not begin with percent\n");
@@ -773,9 +775,13 @@ static int process_prompt(int p, char *command)
 
   command = eattailwhite(eatwhite(command));
   while (command[0] == '$' ) {
+#ifdef DEBUG
     pprintf(p, "DEBUG: command starts with dollarsign:%s\n", command);
+#endif
     command++;
+#ifdef DEBUG
     pprintf(p, "DEBUG: chomped:%s\n", command);
+#endif
   }
   if (!*command) {
 	  send_prompt(p);

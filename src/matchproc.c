@@ -35,9 +35,12 @@ static void prepare_match(int g,int wt,int bt,int winc,int binc,int wp, int bp,i
   strcpy(game_globals.garray[g].white_name, player_globals.parray[wp].name);
   strcpy(game_globals.garray[g].black_name, player_globals.parray[bp].name);
   game_globals.garray[g].status = GAME_ACTIVE;
-  if ((game_globals.garray[g].type == TYPE_UNTIMED) || (game_globals.garray[g].type == TYPE_NONSTANDARD))
+  if ((game_globals.garray[g].type == TYPE_UNTIMED) || (game_globals.garray[g].type == TYPE_NONSTANDARD)) {
     game_globals.garray[g].rated = 0;
-  else
+    pprintf(wp, "game changed to unrated type:%d\n",game_globals.garray[g].type);
+    pprintf(bp, "game changed to unrated type:%d\n",game_globals.garray[g].type);
+
+  } else
     game_globals.garray[g].rated = rated;
   game_globals.garray[g].private = BoolCheckPFlag(wp, PFLAG_PRIVATE)
                       || BoolCheckPFlag(bp, PFLAG_PRIVATE);
@@ -332,8 +335,11 @@ int accept_match(struct pending *pend, int p, int p1)
   strcpy (board, pend->board_type);
   white = (pend->seek_color == -1) ? -1 : 1 - pend->seek_color;
 
+  pprintf(p, "DEBUG wt=%u winc=%u bt=%u binc=%u\n",wt,winc,bt,binc);
+  pprintf(p1, "DEBUG wt=%u winc=%u bt=%u binc=%u\n",wt,winc,bt,binc);
   pprintf(p, "You accept the challenge of %s.\n", player_globals.parray[p1].name);
   pprintf_prompt(p1, "\n%s accepts your challenge.\n", pp->name);
+
 
   if(!pend->status)
     delete_pending(pend);

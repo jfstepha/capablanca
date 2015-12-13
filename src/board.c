@@ -374,6 +374,10 @@ char *board_to_string(char *wn, char *bn,
   /* cope with old stored games */
   if (wTime == 0) wTime = wt;
   if (bTime == 0) bTime = bt;
+  if( player_globals.parray[p].ivariables.ms ) {
+	  wTime = wTime * 1000;
+	  bTime = bTime * 1000;
+  }
 
   forPlayer = p;
   if ((style < 0) || (style >= MAX_STYLES))

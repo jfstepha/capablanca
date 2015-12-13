@@ -48,10 +48,11 @@ int com_iset(int p, param_list param)
 
 	iv = &pp->ivariables;
 
-	if (iv->lock) {
-		pprintf(p,"Cannot alter: Interface setting locked.\n");
-		return COM_OK;
-	}
+	// FICS seems to be ignoring this?
+	//if (iv->lock) {
+	//	pprintf(p,"Cannot alter: Interface setting locked.\n");
+	//	return COM_OK;
+	//}
 
 	if (strcasecmp(var,"ms") == 0) {
 		return iset_bool(p, &iv->ms, var, value);
@@ -76,6 +77,7 @@ int com_iset(int p, param_list param)
 	} else if (strcasecmp(var,  "graph") == 0) {
 		return iset_bool(p, &iv->graph, var, value);
 	} else if (strcasecmp(var,  "seekinfo") == 0) {
+		seekinfo_sought( p );
 		return iset_bool(p, &iv->seekinfo, var, value);
 	} else if (strcasecmp(var,  "extasciii") == 0) {
 		return iset_bool(p, &iv->extascii, var, value);

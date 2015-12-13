@@ -170,8 +170,10 @@ int game_isblitz(int wt, int winc, int bt, int binc,
     if (board && board[0] && strcmp(board, "0")) {
       if (!strcmp(cat, "wild"))
         return TYPE_WILD;
-      if (strcmp(cat, "standard") || strcmp(board, "standard"))
+      if (strcmp(cat, "standard") || strcmp(board, "standard")) {
+    	  // d_printf("DEBUG: type is nonstandard because cat is not standard:%s\n", cat);
         return TYPE_NONSTANDARD;
+      }
     }
     return TYPE_WILD;
   }
@@ -180,8 +182,10 @@ int game_isblitz(int wt, int winc, int bt, int binc,
 			/* nonsense if one is timed and one is not */
     return TYPE_UNTIMED;
 
-  if ((wt != bt) || (winc != binc))
+  if ((wt != bt) || (winc != binc)) {
+   	// d_printf("DEBUG: type is nonstandard because wt(%u) != bt(%u) or winc(%u) != binc(%u)\n",wt,bt,winc,binc);
     return TYPE_NONSTANDARD;
+  }
   total = wt * 60 + winc * 40;
   if (total < 180)		/* 3 minute */
     return TYPE_LIGHT;
