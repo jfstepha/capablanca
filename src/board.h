@@ -196,6 +196,7 @@ GENSTRUCT struct game_state_t {
 	char palace;
 	char setup;
 	char bareKingLoses;
+	char ignoreInsufficientMaterial;
 	char stalemate;
 	char promoType;
 	char promoZone;

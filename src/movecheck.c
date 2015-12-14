@@ -2275,8 +2275,8 @@ int execute_move(struct game_state_t * gs, struct move_t * mt, int check_game_st
       if(gs->bareKingLoses) { // [HGM] with bare-King-loses rule only KK is insuff. material
 	if(gs->onMove == BLACK && wCnt == 1 && bCnt > 1) return MOVE_BARE;
 	if(gs->onMove == WHITE && bCnt == 1 && wCnt > 1) return MOVE_BARE;
-	if(bCnt == 1 && wCnt == 1) return MOVE_NOMATERIAL;
-      } else if (foobar < 2)
+	if(bCnt == 1 && wCnt == 1 && !gs->ignoreInsufficientMaterial) return MOVE_NOMATERIAL;
+      } else if (foobar < 2 && !gs->ignoreInsufficientMaterial)
         return MOVE_NOMATERIAL;
   } else {
     gs->onMove = CToggle(gs->onMove);

@@ -169,6 +169,7 @@ int board_init(int g,struct game_state_t *b, char *category, char *board)
   b->palace = 0;
   b->setup = 0;
   b->bareKingLoses = 0;
+  b->ignoreInsufficientMaterial = 0;
   b->stalemate = 1;
   b->promoType = 1;
   b->promoZone = 1;
@@ -1083,6 +1084,9 @@ static int board_read_file(char *category, char *gname, struct game_state_t *gs)
 		break;
 	    case 'b':
 		gs->bareKingLoses = 1; // apply baring rule
+		break;
+	    case 'i':
+		gs->ignoreInsufficientMaterial = 1; // ignore insufficient material - for training games
 		break;
 	    case 's':
 		gs->stalemate = 0; // stalemate loses
