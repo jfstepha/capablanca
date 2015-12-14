@@ -643,7 +643,7 @@ printf("promo '%s'\n", command);
 
   switch (parse_move(command, &gg->game_state, &move, pp->promote)) {
   case MOVE_ILLEGAL:
-    pprintf(p, "Illegal move.\n");
+    pprintf(p, "Illegal move (%s).\n", command);
     return;
     break;
   case MOVE_AMBIGUOUS:
