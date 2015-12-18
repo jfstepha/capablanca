@@ -1,0 +1,7 @@
+*.o
+*.so
+*.log
+src/.autoheaders
+src/chessd
+src/chessd_addplayer
+src/makerank

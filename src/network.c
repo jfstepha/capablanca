@@ -440,6 +440,52 @@ static int readline2(char *com, int who)
   }
   return (0);
 }
+int ach_init(int port)
+{
+	 int opt;
+	 int n;
+	  struct sockaddr_in serv_addr;
+	  struct hostent *server;
+	  char buffer[256];
+
+   	  d_printf("ACH init\n");
+
+	  /* Open a TCP socket (an Internet stream socket). */
+	  if ((net_globals.ach_sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	    d_printf( "CHESSD: can't open stream socket\n");
+	    return -1;
+	  }
+	  server = gethostbyname("localhost");
+	  if(server == NULL) {
+		  d_printf("ACH_INIT: no such host\n");
+	  }
+	  bzero((char *) &serv_addr, sizeof(serv_addr));
+	  serv_addr.sin_family = AF_INET;
+      bcopy((char *)server->h_addr,
+	         (char *)&serv_addr.sin_addr.s_addr,
+	         server->h_length);
+	  serv_addr.sin_port = htons(port);
+      if (connect(net_globals.ach_sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+	        d_printf("ERROR connecting");
+
+      bzero(buffer,256);
+      sprintf(buffer,"FICS_startup\n");
+	  n = write(net_globals.ach_sockfd, buffer,strlen(buffer));
+
+	  if (n < 0)
+		  d_printf("Error writing to ach socket\n");
+	    bzero(buffer,256);
+	    n = read(net_globals.ach_sockfd,buffer,255);
+	    if (n < 0)
+	         d_printf("ERROR reading from socket");
+	    d_printf("returned from ach server:%s\n",buffer);
+
+	    d_printf("calling second write\n");
+	    ach_print("2nd print\n");
+	    close( net_globals.ach_sockfd);
+
+	return 0;
+}
 
 int net_init(int port)
 {

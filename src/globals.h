@@ -35,6 +35,8 @@ GENSTRUCT struct net_globals {
 	int numConnections; /* number of active connections */
 	int no_file;   /* number of connections allocated */
 	struct connection_t **con; _LEN(no_file)
+	int ach_sockfd;
+
 };
 EXTERN struct net_globals net_globals;
 

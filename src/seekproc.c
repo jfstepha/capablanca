@@ -42,6 +42,8 @@ int com_seek(int p, param_list param)
 	int             num;	/* sought ID */
 	char           *msgtxt;
 	char           *msgtxt2; /* for if seekinfo is on */
+	char ach_txt[ACH_BUFFER_LEN];
+	char return_buf[ACH_BUFFER_LEN];
 	char		board[100], category[100];
 	int		wt, bt, winc, binc, rated, white;
 
@@ -174,6 +176,15 @@ int com_seek(int p, param_list param)
 
 	msgtxt = form_ad(&seek_globals.ads[num], num);
 	msgtxt2 = form_ad_seekinfo(&seek_globals.ads[num], num);
+	sprintf( ach_txt, "seek: %s", msgtxt2);
+	ach_print_return( return_buf, ach_txt );
+	if (strstr(return_buf, "seek_ok") == NULL) {
+	    pprintf(p, "Sorry, but you have not unlocked that game yet.\n");
+        seek_globals.ads[num].status = SEEKOPEN;
+        FREE(seek_globals.ads[num].category);
+        FREE(seek_globals.ads[num].board_type);
+        return COM_OK;
+	}
 
 
 	for (p1 = 0; p1 < player_globals.p_num; p1++) {
@@ -398,9 +409,9 @@ static char *form_ad_seekinfo(struct pending * ad, int i)
 
 
 	if(ad->category[0]) { // [HGM] print category with seek ad
-		sprintf(buf, " %s", ad->category);
+		sprintf(buf, "%s", ad->category);
 	if(ad->board_type[0] && strcmp(ad->board_type, "0"))
-			sprintf(buf + strlen(buf), " %s", ad->board_type);
+			sprintf(buf + strlen(buf), "%s", ad->board_type);
 	} else strcpy(buf, TypeStrings[type]); // [HGM] replaced color by type here...
 
 	if(comlog) fprintf(comlog, "seek %d type = %d\n", i, type), fflush(comlog);

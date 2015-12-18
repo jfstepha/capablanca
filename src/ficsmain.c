@@ -180,12 +180,14 @@ static void segv_handler(int sig)
 
 int main(int argc, char *argv[])
 {
-	int i, foreground, port;
+	int i, foreground, port, ach_port;
 	void (*timeseal_init)(const char * ) = chessd_function("timeseal_init");
 	int (*net_init)(int ) = chessd_function("net_init");
+	int (*ach_init)(int ) = chessd_function("ach_init");
 	void (*initial_load)(void ) = chessd_function("initial_load");
 
 	port = DEFAULT_PORT;
+	ach_port = DEFAULT_ACH_PORT;
 	foreground = 0;
 
 	/* enable malloc checking in libc */
@@ -223,6 +225,10 @@ int main(int argc, char *argv[])
 
 	if (net_init(port)) {
 		fprintf(stderr, "CHESSD: Network initialize failed on port %d.\n", port);
+		exit(1);
+	}
+	if (ach_init(ach_port)) {
+		fprintf(stderr, "CHESSD: Achievement initialize failed on port %d.\n", ach_port);
 		exit(1);
 	}
 	fprintf(stderr,  "CHESSD: Initialized on port %d\n", port);
