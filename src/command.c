@@ -652,8 +652,8 @@ static int process_password(int p, char *password)
   int messnum;
   char fname[10];
   int dummy; /* (to hold a return value) */ 
-  char tmp[255];
-  char tmp2[255];
+  char tmp[ACH_BUFFER_LEN];
+  char tmp2[ACH_BUFFER_LEN];
 
   turn_echo_on(pp->socket);
 
@@ -703,6 +703,9 @@ static int process_password(int p, char *password)
   if (pp->adminLevel > 0) {
     psend_raw_file(p, MESS_DIR, MESS_ADMOTD);
     ach_print( "test");
+    sprintf( tmp, "user_login: %s", pp->name );
+    ach_print_return( tmp2, tmp );
+    pprintf(p, tmp2);
   } else {
     pprintf(p, "\n**** Starting FICS session as %s ****\n", pp->name);
     pprintf(p, "logged in\n");

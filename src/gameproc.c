@@ -99,6 +99,8 @@ void game_ended(int g, int winner, int why)
   char avail_bugwhite[200];
   char avail_bugblack[200];
   char tmp[200];
+  char tmp2[ACH_BUFFER_LEN];
+  char tmp3[ACH_BUFFER_LEN];
   int p;
   int gl = gg->link;
   int rate_change = 0;
@@ -289,6 +291,15 @@ void game_ended(int g, int winner, int why)
 
     pprintf_noformat(gg->white, outstr);
     pprintf_noformat(gg->black, outstr);
+
+    sprintf( tmp2, "game_end_white: %s variant: %s", outstr, gg->variant);
+    ach_print_return( tmp3, tmp2 );
+    pprintf(gg->white, tmp3);
+
+    sprintf( tmp2, "game_end_black: %s variant: %s", outstr, gg->variant);
+    ach_print_return( tmp3, tmp2 );
+    pprintf(gg->white, tmp3);
+
     Bell (gg->white);
     Bell (gg->black);
 
