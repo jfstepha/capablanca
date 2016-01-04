@@ -37,7 +37,7 @@ int ach_print_return( char *buffer, char *str)
 	      server->h_length);
 	serv_addr.sin_port = htons(DEFAULT_ACH_PORT);
     if (connect(net_globals.ach_sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-	      d_printf("ERROR connecting");
+	      d_printf("ERROR connecting\n");
 	      return(-1);
     }
 

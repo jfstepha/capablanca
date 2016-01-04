@@ -54,7 +54,7 @@ GEN_SRCS=adminproc.c algcheck.c board.c command.c talkproc.c comproc.c \
 	utils.c variable.c eco.c matchproc.c \
 	obsproc.c pending.c gics.c setup.c shutdown.c seekproc.c \
 	parsers/parser.c parsers/genparser.c iset.c \
-	crypt.c timeseal.c
+	crypt.c timeseal.c ach.c
 
 SRCS=$(GEN_SRCS) fics_addplayer.c ficsmain.c makerank.c
 
@@ -71,7 +71,7 @@ chessd: .autoheaders ficsmain.o
 	$(CC) $(DYNEXP) $(CFLAGS) $(LNFLAGS) -o chessd ficsmain.o $(LIBS)
 
 chessd.so: .autoheaders $(OBJS)
-	$(CC) -shared -o chessd.so $(OBJS)
+	$(CC) -shared -o chessd.so $(OBJS) $(LIBS)
 
 chessd_addplayer: .autoheaders fics_addplayer.o $(OBJS) 
 	$(CC) fics_addplayer.o $(CFLAGS) $(OBJS) $(LNFLAGS) -o chessd_addplayer $(LIBS)

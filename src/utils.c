@@ -651,7 +651,7 @@ struct t_dirs {
   struct t_dirs *left, *right;
   time_t mtime;			/* dir's modification time */
   struct t_tree *files;
-  char name;			/* ditto */
+  char *name;			/* ditto */
 };
 
 static char **t_buffer = NULL; /* pointer to next space in return buffer */
@@ -679,6 +679,7 @@ static void t_cft(struct t_tree **t)
   if (*t) {
     t_cft(&(*t)->left);
     t_cft(&(*t)->right);
+    free(&(*t)->name);
     free(*t);
     *t = NULL;
   }
@@ -725,11 +726,14 @@ int search_directory(const char *dir, const char *filter, char **buffer, int buf
   int cmp;
   static char nullify = '\0';
   struct stat statbuf;
+  static char stupidbuf[1000];
 
   t_buffer = buffer;
   t_buffersize = buffersize;
 
+
   if (!stat(dir, &statbuf)) {
+
     if (filter == NULL)		/* NULL becomes pointer to null string */
       filter = &nullify;
     i = &ramdirs;
@@ -743,10 +747,11 @@ int search_directory(const char *dir, const char *filter, char **buffer, int buf
 	i = &(*i)->right;
     }
     if (!*i) {				/* if dir isn't in dir tree, add him */
-      *i = malloc(sizeof(struct t_dirs) + strlen(dir));
+      *i = malloc(sizeof(struct t_dirs));
+      (*i)->name = malloc(strlen(dir));
       (*i)->left = (*i)->right = NULL;
       (*i)->files = NULL;
-      strcpy(&(*i)->name, dir);
+      strcpy((*i)->name, dir);
     }
     if ((*i)->files) {			/* delete any obsolete file tree */
       if ((*i)->mtime != statbuf.st_mtime) {
